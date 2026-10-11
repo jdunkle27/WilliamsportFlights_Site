@@ -1,4 +1,4 @@
-import { afterNextRender, Component, DestroyRef, inject } from '@angular/core';
+import { afterNextRender, Component, DestroyRef, inject, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 interface Aircraft {
@@ -25,6 +25,7 @@ export class AppComponent {
   errorMessage = '';
   private refreshInterval: number | undefined;
   private readonly destroyRef = inject(DestroyRef);
+  private readonly ngZone = inject(NgZone);
 
   constructor() {
     afterNextRender(() => {
@@ -78,14 +79,21 @@ export class AppComponent {
       const response = await fetch('/aircraft');
       if (!response.ok) throw new Error(`Aircraft API returned ${response.status}`);
 
-      this.aircraft = await response.json() as Aircraft[];
-      this.lastUpdated = new Date();
-      this.errorMessage = '';
+      const aircraft = await response.json() as Aircraft[];
+      this.ngZone.run(() => {
+        this.aircraft = aircraft;
+        this.lastUpdated = new Date();
+        this.errorMessage = '';
+      });
     } catch {
-      this.errorMessage = 'Aircraft feed is unavailable';
+      this.ngZone.run(() => {
+        this.errorMessage = 'Aircraft feed is unavailable';
+      });
     } finally {
-      this.isLoading = false;
-      this.isRefreshing = false;
+      this.ngZone.run(() => {
+        this.isLoading = false;
+        this.isRefreshing = false;
+      });
     }
   }
 }
