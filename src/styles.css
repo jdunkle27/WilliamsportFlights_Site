@@ -1,1 +1,7 @@
-/* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600&display=swap');
+@import './app/app.component.css';
+
+* { box-sizing: border-box; }
+html { min-width: 320px; background: #f5f7f4; }
+body { min-width: 320px; min-height: 100vh; margin: 0; font-family: 'Space Grotesk', 'Avenir Next', sans-serif; -webkit-font-smoothing: antialiased; }
+button, input { font: inherit; }

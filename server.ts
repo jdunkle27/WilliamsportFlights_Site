@@ -17,8 +17,19 @@ export function app(): express.Express {
   server.set('view engine', 'html');
   server.set('views', browserDistFolder);
 
-  // Example Express Rest API endpoints
-  // server.get('/api/**', (req, res) => { });
+  server.get('/aircraft', async (_req, res) => {
+    try {
+      const apiUrl = process.env['ADSB_API_URL'] || 'http://127.0.0.1:8000/aircraft';
+      const response = await fetch(apiUrl, { signal: AbortSignal.timeout(5000) });
+      const payload = await response.text();
+      res.status(response.status)
+        .type(response.headers.get('content-type') || 'application/json')
+        .send(payload);
+    } catch {
+      res.status(502).json({ error: 'Aircraft API is unavailable' });
+    }
+  });
+
   // Serve static files from /browser
   server.get('*.*', express.static(browserDistFolder, {
     maxAge: '1y'

@@ -14,6 +14,14 @@ Run `ng generate component component-name` to generate a new component. You can 
 
 Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
 
+## Live aircraft feed
+
+The dashboard polls `GET /aircraft` every five seconds. In production, the Express SSR server forwards that same-origin request to the ADS-B FastAPI service at `http://127.0.0.1:8000/aircraft`, keeping the tracker private on the shared host. Set `ADSB_API_URL` on the site server to override that upstream URL.
+
+For local development, `ng serve` uses `proxy.conf.json` to forward `/aircraft` directly to the same FastAPI endpoint. Start the ADS-B API and receiver services from the `WilliamsportFlights_ADS-B_Tracker` repository first.
+
+For production, build with `npm run build` and run the SSR server with `npm run serve:ssr:williamsportflights`.
+
 ## Running unit tests
 
 Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).

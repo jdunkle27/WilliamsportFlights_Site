@@ -14,16 +14,11 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  it(`should have the 'williamsportflights' title`, () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.componentInstance;
-    expect(app.title).toEqual('williamsportflights');
-  });
-
-  it('should render title', () => {
+  it('should render the aircraft tracker', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, williamsportflights');
+    expect(compiled.querySelector('h1')?.textContent).toContain('Air traffic');
+    expect(compiled.querySelector('table')).toBeTruthy();
   });
 });
