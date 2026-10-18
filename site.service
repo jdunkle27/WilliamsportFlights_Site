@@ -1,0 +1,16 @@
+[Unit]
+Description=Williamsport Flights Website
+
+[Service]
+Type=simple
+User=jonny
+WorkingDirectory=/path/to/WilliamsportFlights_Site
+Environment=NODE_ENV=production
+Environment=PORT=4000
+Environment=ADSB_API_URL=http://127.0.0.1:8000/aircraft
+ExecStart=/usr/bin/npm run serve:ssr:williamsportflights
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
