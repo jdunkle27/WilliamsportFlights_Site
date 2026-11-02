@@ -35,6 +35,79 @@
       </div>
     </section>
 
+    <section class="map-panel" aria-labelledby="map-title">
+      <div class="traffic-heading">
+        <div class="traffic-title-group">
+          <h2 id="map-title">Coverage map</h2>
+          <span class="result-count">{{ positionedCount }} positioned</span>
+        </div>
+      </div>
+
+      <div class="map-shell">
+        <div class="map-stage" aria-label="Aircraft coverage map">
+          @if (positionedAircraft.length === 0) {
+            <div class="map-empty-state">No positioned aircraft in the current feed.</div>
+          } @else {
+            @for (item of positionedAircraft; track item.hex) {
+              <button
+                type="button"
+                class="aircraft-marker"
+                [class.selected]="selectedAircraftHex === item.hex"
+                [style.left.%]="mapPosition(item).x"
+                [style.top.%]="mapPosition(item).y"
+                [style.transform]="'translate(-50%, -50%) rotate(' + (item.rotation ?? 0) + 'deg)'"
+                [title]="(item.tailnumber || item.hex) + ' • ' + item.latitude + ', ' + item.longitude + ' • heading ' + (item.rotation ?? 0) + '°'"
+                [attr.aria-label]="(item.tailnumber || item.hex) + ' at ' + item.latitude + ', ' + item.longitude + ' with rotation ' + (item.rotation ?? 0) + ' degrees'"
+                (click)="selectAircraft(item.hex)">
+                <svg viewBox="0 0 32 32" aria-hidden="true">
+                  <path d="M4 16L11 11L15 2L17 11L28 16L17 21L15 30L11 21L4 16Z" />
+                </svg>
+              </button>
+            }
+          }
+        </div>
+
+        @if (selectedAircraft) {
+          <aside class="aircraft-detail" aria-live="polite">
+            <div class="detail-header">
+              <span class="detail-badge">{{ selectedAircraft.tailnumber || 'Unknown aircraft' }}</span>
+              <span class="detail-hex">{{ selectedAircraft.hex | uppercase }}</span>
+            </div>
+
+            <dl class="detail-grid">
+              <div>
+                <dt>Hex</dt>
+                <dd>{{ selectedAircraft.hex | uppercase }}</dd>
+              </div>
+              <div>
+                <dt>Tail</dt>
+                <dd>{{ selectedAircraft.tailnumber || 'Unknown' }}</dd>
+              </div>
+              <div>
+                <dt>Altitude</dt>
+                <dd>{{ selectedAircraft.altitude === null ? '--' : (selectedAircraft.altitude | number) + ' ft' }}</dd>
+              </div>
+              <div>
+                <dt>Speed</dt>
+                <dd>{{ selectedAircraft.velocity === null ? '--' : (selectedAircraft.velocity | number:'1.0-0') + ' kt' }}</dd>
+              </div>
+              <div>
+                <dt>Position</dt>
+                <dd>
+                  {{ selectedAircraft.latitude === null ? '--' : (selectedAircraft.latitude | number:'1.4-4') }},
+                  {{ selectedAircraft.longitude === null ? '--' : (selectedAircraft.longitude | number:'1.4-4') }}
+                </dd>
+              </div>
+              <div>
+                <dt>Rotation</dt>
+                <dd>{{ selectedAircraft.rotation === null ? '--' : (selectedAircraft.rotation | number:'1.0-0') + '°' }}</dd>
+              </div>
+            </dl>
+          </aside>
+        }
+      </div>
+    </section>
+
     <section class="traffic" aria-labelledby="traffic-title">
       <div class="traffic-heading">
         <div class="traffic-title-group">
