@@ -1,18 +1,16 @@
 <div class="app-shell">
   <header class="topbar">
-    <a class="brand" href="/" aria-label="Williamsport Airspace home">
+    <a class="brand" href="/" aria-label="Williamsport Flights home">
       <span class="brand-mark" aria-hidden="true"><span></span></span>
-      <span class="brand-name">WILLIAMSPORT<span> AIRSPACE</span></span>
+      <span class="brand-name">Williamsport Flights</span>
     </a>
   </header>
 
   <main>
     <section class="overview" aria-labelledby="page-title">
-      <div class="eyebrow"><span class="eyebrow-line"></span> LOCAL ADS-B SURVEILLANCE</div>
       <div class="heading-row">
         <div>
-          <h1 id="page-title">Air traffic<span class="heading-period">.</span></h1>
-          <p class="intro">Aircraft currently visible to the Williamsport receiver.</p>
+          <h1 id="page-title">Air Traffic - Williamsport, PA</h1>
         </div>
         <div class="feed-status" [class.live]="connectionState === 'live'" [class.offline]="connectionState === 'offline'" role="status" aria-live="polite">
           <span class="status-light"></span>{{ connectionLabel }}
@@ -23,10 +21,6 @@
         <div class="metric">
           <span class="metric-label">Aircraft tracked</span>
           <strong>{{ aircraft.length }}</strong>
-        </div>
-        <div class="metric">
-          <span class="metric-label">With position</span>
-          <strong>{{ positionedCount }}</strong>
         </div>
         <div class="metric metric-updated">
           <span class="metric-label">Last update</span>
@@ -179,7 +173,6 @@
   </main>
 
   <footer class="page-footer">
-    <span>WILLIAMSPORT FLIGHT TRACKER</span>
-    <span>INDEPENDENT RECEIVER · NOT FOR NAVIGATION</span>
+    <span>Williamsport Flight Tracker</span>
   </footer>
 </div>
