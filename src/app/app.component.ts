@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, NgZone } from '@angular/core';
+import { AfterViewInit, Component, DestroyRef, ElementRef, inject, NgZone, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 interface Aircraft {
@@ -17,7 +17,9 @@ interface Aircraft {
   imports: [CommonModule],
   templateUrl: './app.component.html'
 })
-export class AppComponent {
+export class AppComponent implements AfterViewInit {
+  @ViewChild('mapContainer') mapContainer!: ElementRef<HTMLDivElement>;
+
   aircraft: Aircraft[] = [];
   filterText = '';
   lastUpdated: Date | null = null;
@@ -28,6 +30,8 @@ export class AppComponent {
   private refreshInterval: number | undefined;
   private readonly destroyRef = inject(DestroyRef);
   private readonly ngZone = inject(NgZone);
+  private map: import('leaflet').Map | null = null;
+  private markerLayer: import('leaflet').LayerGroup | null = null;
 
   constructor() {
     if (typeof window !== 'undefined') {
@@ -41,7 +45,17 @@ export class AppComponent {
       if (this.refreshInterval !== undefined && typeof window !== 'undefined') {
         window.clearInterval(this.refreshInterval);
       }
+
+      if (this.map) {
+        this.map.remove();
+        this.map = null;
+      }
     });
+  }
+
+  ngAfterViewInit(): void {
+    if (typeof window === 'undefined') return;
+    void this.initializeMap();
   }
 
   get filteredAircraft(): Aircraft[] {
@@ -120,6 +134,79 @@ export class AppComponent {
     };
   }
 
+  private async initializeMap(): Promise<void> {
+    if (typeof window === 'undefined' || !this.mapContainer) return;
+
+    if (this.map) {
+      return;
+    }
+
+    const L = await import('leaflet');
+
+    this.map = L.map(this.mapContainer.nativeElement, {
+      center: [41.24, -77.0],
+      zoom: 9,
+      zoomControl: true,
+      scrollWheelZoom: true,
+      dragging: true,
+      worldCopyJump: false,
+    });
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(this.map);
+
+    this.markerLayer = L.layerGroup().addTo(this.map);
+    await this.refreshMapMarkers();
+  }
+
+  private async refreshMapMarkers(): Promise<void> {
+    if (!this.map || !this.markerLayer) return;
+
+    const L = await import('leaflet');
+    const positioned = this.positionedAircraft;
+    this.markerLayer.clearLayers();
+
+    if (positioned.length === 0) {
+      this.map.setView([41.24, -77.0], 9, { animate: false });
+      return;
+    }
+
+    const bounds = positioned
+      .filter((item) => item.latitude !== null && item.longitude !== null)
+      .map((item) => [item.latitude as number, item.longitude as number] as [number, number]);
+
+    bounds.forEach(([lat, lon]) => {
+      const plane = this.positionedAircraft.find((item) => item.latitude === lat && item.longitude === lon);
+      const isSelected = plane !== undefined && this.selectedAircraftHex === plane.hex;
+      const markerIcon = L.divIcon({
+        className: isSelected ? 'aircraft-marker selected' : 'aircraft-marker',
+        html: `
+          <div class="aircraft-marker ${isSelected ? 'selected' : ''}" style="transform: rotate(${plane?.rotation ?? 0}deg)">
+            <svg viewBox="0 0 32 32" aria-hidden="true">
+              <path d="M4 16L11 11L15 2L17 11L28 16L17 21L15 30L11 21L4 16Z" />
+            </svg>
+          </div>
+        `,
+        iconSize: [22, 22],
+        iconAnchor: [11, 11],
+        popupAnchor: [0, -11],
+      });
+
+      const marker = L.marker([lat, lon], { icon: markerIcon });
+      if (plane) {
+        marker.bindPopup(`${plane.tailnumber || 'Unknown aircraft'}<br>${plane.hex.toUpperCase()}<br>${plane.altitude ?? '--'} ft`);
+        marker.on('click', () => this.selectAircraft(plane.hex));
+      }
+
+      marker.addTo(this.markerLayer!);
+    });
+
+    const mapBounds = L.latLngBounds(bounds);
+    this.map.fitBounds(mapBounds.pad(0.35), { maxZoom: 11, animate: false });
+  }
+
   selectAircraft(hex: string): void {
     this.selectedAircraftHex = hex;
   }
@@ -152,6 +239,7 @@ export class AppComponent {
         this.lastUpdated = new Date();
         this.errorMessage = '';
         this.syncSelectedAircraft();
+        void this.refreshMapMarkers();
       });
     } catch {
       this.ngZone.run(() => {
@@ -166,10 +254,6 @@ export class AppComponent {
   }
 
   private getAircraftUrl(): string {
-    if (typeof window !== 'undefined') {
-      return '/aircraft';
-    }
-
-    return process.env['ADSB_API_URL'] || 'http://127.0.0.1:8000/aircraft';
+    return '/aircraft';
   }
 }

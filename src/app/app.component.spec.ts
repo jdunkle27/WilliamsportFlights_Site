@@ -22,7 +22,7 @@ describe('AppComponent', () => {
     expect(compiled.querySelector('table')).toBeTruthy();
   });
 
-  it('should render the live map with rotation-aware aircraft details', () => {
+  it('should render a real interactive map centered on Williamsport with aircraft details', () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
 
@@ -41,6 +41,7 @@ describe('AppComponent', () => {
 
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('.map-panel')).toBeTruthy();
+    expect(compiled.querySelector('.leaflet-container')).toBeTruthy();
     expect(compiled.querySelectorAll('.aircraft-marker').length).toBe(1);
     expect(compiled.textContent).toContain('N123AB');
     expect(compiled.textContent).toContain('A1B2C3');

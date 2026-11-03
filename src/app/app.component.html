@@ -39,25 +39,9 @@
 
       <div class="map-shell">
         <div class="map-stage" aria-label="Aircraft coverage map">
+          <div #mapContainer class="leaflet-map" aria-label="Map of the Williamsport area"></div>
           @if (positionedAircraft.length === 0) {
             <div class="map-empty-state">No positioned aircraft in the current feed.</div>
-          } @else {
-            @for (item of positionedAircraft; track item.hex) {
-              <button
-                type="button"
-                class="aircraft-marker"
-                [class.selected]="selectedAircraftHex === item.hex"
-                [style.left.%]="mapPosition(item).x"
-                [style.top.%]="mapPosition(item).y"
-                [style.transform]="'translate(-50%, -50%) rotate(' + (item.rotation ?? 0) + 'deg)'"
-                [title]="(item.tailnumber || item.hex) + ' • ' + item.latitude + ', ' + item.longitude + ' • heading ' + (item.rotation ?? 0) + '°'"
-                [attr.aria-label]="(item.tailnumber || item.hex) + ' at ' + item.latitude + ', ' + item.longitude + ' with rotation ' + (item.rotation ?? 0) + ' degrees'"
-                (click)="selectAircraft(item.hex)">
-                <svg viewBox="0 0 32 32" aria-hidden="true">
-                  <path d="M4 16L11 11L15 2L17 11L28 16L17 21L15 30L11 21L4 16Z" />
-                </svg>
-              </button>
-            }
           }
         </div>
 
@@ -102,74 +86,6 @@
       </div>
     </section>
 
-    <section class="traffic" aria-labelledby="traffic-title">
-      <div class="traffic-heading">
-        <div class="traffic-title-group">
-          <h2 id="traffic-title">Traffic list</h2>
-          <span class="result-count">{{ filteredAircraft.length }} shown</span>
-        </div>
-        <div class="table-controls">
-          <label class="search-box">
-            <span class="search-glyph" aria-hidden="true"></span>
-            <span class="visually-hidden">Filter aircraft</span>
-            <input type="search" placeholder="Search callsign or ICAO" [value]="filterText" (input)="filterText = $any($event.target).value">
-          </label>
-          <button class="refresh-button" type="button" (click)="refreshNow()" [disabled]="isRefreshing" title="Refresh aircraft data">
-            <span class="refresh-glyph" [class.spinning]="isRefreshing" aria-hidden="true">&#8635;</span>
-            <span>Refresh</span>
-          </button>
-        </div>
-      </div>
-
-      @if (errorMessage) {
-        <div class="feed-error" role="alert">{{ errorMessage }}. Showing the most recent available data.</div>
-      }
-
-      <div class="table-scroll">
-        <table>
-          <thead>
-            <tr>
-              <th scope="col">Aircraft</th>
-              <th scope="col">Hex</th>
-              <th scope="col">Latitude</th>
-              <th scope="col">Longitude</th>
-              <th scope="col" class="numeric">Altitude</th>
-              <th scope="col" class="numeric">Speed</th>
-            </tr>
-          </thead>
-          <tbody>
-            @if (isLoading) {
-              <tr><td class="empty-state" colspan="6"><span class="loading-mark"></span>Listening for aircraft data</td></tr>
-            } @else if (filteredAircraft.length === 0) {
-              <tr>
-                <td class="empty-state" colspan="6">
-                  @if (aircraft.length === 0) {
-                    No aircraft currently detected
-                  } @else {
-                    No aircraft match this search
-                  }
-                </td>
-              </tr>
-            } @else {
-              @for (item of filteredAircraft; track item.hex) {
-                <tr>
-                  <td class="callsign">{{ item.tailnumber || 'Unknown aircraft' }}</td>
-                  <td class="icao">{{ item.hex | uppercase }}</td>
-                  <td class="coordinate">{{ item.latitude === null ? '--' : (item.latitude | number:'1.4-4') }}</td>
-                  <td class="coordinate">{{ item.longitude === null ? '--' : (item.longitude | number:'1.4-4') }}</td>
-                  <td class="numeric">{{ item.altitude === null ? '--' : (item.altitude | number) }}<span class="unit">{{ item.altitude === null ? '' : ' ft' }}</span></td>
-                  <td class="numeric">{{ item.velocity === null ? '--' : (item.velocity | number:'1.0-0') }}<span class="unit">{{ item.velocity === null ? '' : ' kt' }}</span></td>
-                </tr>
-              }
-            }
-          </tbody>
-        </table>
-      </div>
-      <footer class="table-footer">
-        <span>Data from local ADS-B receiver</span>
-        <span>Auto-refresh <span class="refresh-interval">5 sec</span></span>
-      </footer>
-    </section>
   </main>
 
   <footer class="page-footer">
