@@ -134,6 +134,11 @@ export class AppComponent implements AfterViewInit {
     };
   }
 
+  private async getLeaflet(): Promise<typeof import('leaflet')> {
+    const leafletModule = await import('leaflet');
+    return (leafletModule as typeof import('leaflet') & { default?: typeof import('leaflet') }).default ?? leafletModule;
+  }
+
   private async initializeMap(): Promise<void> {
     if (typeof window === 'undefined' || !this.mapContainer) return;
 
@@ -141,7 +146,7 @@ export class AppComponent implements AfterViewInit {
       return;
     }
 
-    const L = await import('leaflet');
+    const L = await this.getLeaflet();
 
     this.map = L.map(this.mapContainer.nativeElement, {
       center: [41.24, -77.0],
@@ -164,7 +169,7 @@ export class AppComponent implements AfterViewInit {
   private async refreshMapMarkers(): Promise<void> {
     if (!this.map || !this.markerLayer) return;
 
-    const L = await import('leaflet');
+    const L = await this.getLeaflet();
     const positioned = this.positionedAircraft;
     this.markerLayer.clearLayers();
 
