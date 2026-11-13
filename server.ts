@@ -6,6 +6,7 @@ import { createHash, randomBytes } from 'node:crypto';
 import { createPool, type Pool, type ResultSetHeader, type RowDataPacket } from 'mysql2/promise';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { environment } from './src/environments/environment';
 import bootstrap from './src/main.server';
 
 const sessionCookieName = 'williamsport_session';
@@ -88,9 +89,9 @@ export function app(): express.Express {
   server.use(express.json({ limit: '16kb' }));
 
   server.post('/api/auth/google', async (request, response) => {
-    const clientId = process.env['GOOGLE_CLIENT_ID'];
+    const clientId = process.env['GOOGLE_CLIENT_ID'] || environment.googleClientId;
     const idToken = request.body?.idToken;
-    if (!clientId) {
+    if (!clientId || clientId.startsWith('YOUR_')) {
       response.status(503).json({ error: 'Google authentication is not configured on the server' });
       return;
     }
