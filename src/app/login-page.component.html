@@ -6,14 +6,22 @@
       Sign in with Google to view archived Williamsport flight activity, trend analysis, and operating history.
     </p>
 
-    <div class="oauth-actions" aria-label="OAuth login options">
-      <button type="button" class="oauth-button google" (click)="loginWithGoogle()" [disabled]="isSigningIn">
-        <span class="icon" aria-hidden="true">G</span>
-        {{ isSigningIn ? 'Signing in...' : 'Continue with Google' }}
-      </button>
+    <div *ngIf="isGoogleConfigured; else missingGoogleConfig" class="oauth-actions" aria-label="Google login">
+      <asl-google-signin-button
+        type="standard"
+        size="large"
+        text="continue_with"
+        shape="rectangular"
+        theme="outline"
+        width="100%">
+      </asl-google-signin-button>
     </div>
 
-    <p *ngIf="errorMessage" class="auth-error" role="alert">{{ errorMessage }}</p>
+    <ng-template #missingGoogleConfig>
+      <p class="auth-error" role="alert">
+        Google sign-in is not configured. Add your Google OAuth client ID to the environment file.
+      </p>
+    </ng-template>
 
     <p class="back-link">
       <a routerLink="/">Return to the live map</a>
