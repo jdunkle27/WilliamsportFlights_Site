@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, RouterOutlet } from '@angular/router';
+import { Router, RouterLink, RouterOutlet } from '@angular/router';
 
 import { AuthService } from './auth.service';
 
@@ -13,8 +13,22 @@ import { AuthService } from './auth.service';
 })
 export class AppComponent {
   readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
 
-  logout(): void {
+  async logout(): Promise<void> {
+    try {
+      const response = await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include'
+      });
+      if (!response.ok) {
+        console.error('Server session revocation failed:', response.status);
+      }
+    } catch (error: unknown) {
+      console.error('Server logout request failed:', error);
+    }
+
     this.authService.logout();
+    await this.router.navigateByUrl('/');
   }
 }

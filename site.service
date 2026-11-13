@@ -5,6 +5,7 @@ Description=Williamsport Flights Website
 Type=simple
 User=jonny
 WorkingDirectory=/path/to/WilliamsportFlights_Site
+EnvironmentFile=/etc/williamsportflights.env
 Environment=NODE_ENV=production
 Environment=PORT=4000
 Environment=ADSB_API_URL=http://127.0.0.1:8000/aircraft

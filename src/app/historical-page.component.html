@@ -7,40 +7,50 @@
     <div class="identity-badge">Signed in with {{ signedInProvider }}</div>
   </div>
 
-  <div class="history-grid">
-    <article class="history-card highlight">
-      <span class="card-label">Overview</span>
-      <h2>Airport movement trends</h2>
-      <p>Compare high-traffic windows, repeated routes, and average ops by day to understand patterns around Williamsport.</p>
-    </article>
+  <form class="history-search" (ngSubmit)="search()">
+    <label for="history-query">Search by tail number, ICAO hex, or flight ID</label>
+    <div class="search-controls">
+      <input
+        id="history-query"
+        name="query"
+        type="search"
+        [(ngModel)]="searchTerm"
+        placeholder="e.g. N123AB or A1B2C3"
+        maxlength="100">
+      <button type="submit" [disabled]="loading">Search</button>
+    </div>
+  </form>
 
-    <article class="history-card">
-      <span class="card-label">Average flights</span>
-      <strong>18.6</strong>
-      <p>Per day over the last 30 days.</p>
-    </article>
+  <p *ngIf="loading" class="status-message" role="status">Loading observations...</p>
+  <p *ngIf="errorMessage" class="error-message" role="alert">{{ errorMessage }}</p>
+  <p *ngIf="!loading && !errorMessage && observations.length === 0" class="status-message">
+    No matching observations found.
+  </p>
 
-    <article class="history-card">
-      <span class="card-label">Peak hour</span>
-      <strong>14:00</strong>
-      <p>Most active operating period.</p>
-    </article>
-
-    <article class="history-card">
-      <span class="card-label">Route mix</span>
-      <strong>42%</strong>
-      <p>Regional traffic with established flight patterns.</p>
-    </article>
-  </div>
-
-  <div class="timeline">
-    <h2>Recent archive snapshot</h2>
-    <ul>
-      <li><span>Mon</span><strong>16 flights</strong></li>
-      <li><span>Tue</span><strong>19 flights</strong></li>
-      <li><span>Wed</span><strong>14 flights</strong></li>
-      <li><span>Thu</span><strong>21 flights</strong></li>
-      <li><span>Fri</span><strong>23 flights</strong></li>
-    </ul>
+  <div *ngIf="observations.length > 0" class="table-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Observed</th>
+          <th scope="col">Tail</th>
+          <th scope="col">ICAO</th>
+          <th scope="col">Flight</th>
+          <th scope="col">Position</th>
+          <th scope="col">Altitude</th>
+          <th scope="col">Speed (kt)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let observation of observations">
+          <td>{{ observation.observationTime | date:'medium' }}</td>
+          <td>{{ observation.tailNum || 'Unknown' }}</td>
+          <td>{{ observation.icaoHex | uppercase }}</td>
+          <td>{{ observation.flightId ?? '-' }}</td>
+          <td>{{ observation.latitude | number:'1.4-4' }}, {{ observation.longitude | number:'1.4-4' }}</td>
+          <td>{{ observation.altitude === null ? '-' : (observation.altitude + ' ft') }}</td>
+          <td>{{ observation.velocity === null ? '-' : (observation.velocity | number:'1.0-1') }}</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </section>

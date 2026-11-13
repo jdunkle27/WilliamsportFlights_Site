@@ -23,6 +23,9 @@
       </p>
     </ng-template>
 
+    <p *ngIf="isAuthenticating" class="auth-status" role="status">Verifying your Google account...</p>
+    <p *ngIf="errorMessage" class="auth-error" role="alert">{{ errorMessage }}</p>
+
     <p class="back-link">
       <a routerLink="/">Return to the live map</a>
     </p>
