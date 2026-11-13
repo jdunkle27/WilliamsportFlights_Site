@@ -3,6 +3,7 @@ import { Component, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { GoogleLoginProvider, SocialAuthService } from '@abacritt/angularx-social-login';
 
+import { environment } from '../environments/environment';
 import { AuthService } from './auth.service';
 
 @Component({
@@ -16,20 +17,27 @@ export class LoginPageComponent {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly socialAuthService = inject(SocialAuthService);
+  isSigningIn = false;
+  errorMessage = '';
 
-  loginWith(provider: string): void {
-    if (provider === 'Google') {
-      this.socialAuthService
-        .signIn(GoogleLoginProvider.PROVIDER_ID)
-        .then(() => {
-          this.authService.loginWithOAuth('Google');
-          this.router.navigateByUrl('/history');
-        })
-        .catch((error) => console.error('Google sign-in failed:', error));
+  async loginWithGoogle(): Promise<void> {
+    if (!environment.googleClientId || environment.googleClientId.startsWith('YOUR_')) {
+      this.errorMessage = 'Google sign-in is not configured. Add your Google OAuth client ID to the environment file.';
       return;
     }
 
-    this.authService.loginWithOAuth(provider);
-    this.router.navigateByUrl('/history');
+    this.errorMessage = '';
+    this.isSigningIn = true;
+
+    try {
+      await this.socialAuthService.signIn(GoogleLoginProvider.PROVIDER_ID);
+      this.authService.loginWithOAuth('Google');
+      await this.router.navigateByUrl('/history');
+    } catch (error: unknown) {
+      console.error('Google sign-in failed:', error);
+      this.errorMessage = 'Google sign-in failed. Check the OAuth client ID and authorized JavaScript origins, then try again.';
+    } finally {
+      this.isSigningIn = false;
+    }
   }
 }
