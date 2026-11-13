@@ -1,94 +1,26 @@
 <div class="app-shell">
   <header class="topbar">
-    <a class="brand" href="/" aria-label="Williamsport Flights home">
+    <a class="brand" routerLink="/" aria-label="Williamsport Flights home">
       <span class="brand-mark" aria-hidden="true"><span></span></span>
       <span class="brand-name">Williamsport Flights</span>
     </a>
+
+    <nav class="topbar-actions" aria-label="Account navigation">
+      @if (authService.isAuthenticated()) {
+        <a class="button-link secondary" routerLink="/history">Historical Data</a>
+        <button type="button" class="button-link" (click)="logout()">Log Out</button>
+      } @else {
+        <a class="button-link" routerLink="/login">Log In</a>
+      }
+    </nav>
   </header>
 
-  <main>
-    <section class="overview" aria-labelledby="page-title">
-      <div class="heading-row">
-        <div>
-          <h1 id="page-title">Air Traffic - Williamsport, PA</h1>
-        </div>
-        <div class="feed-status" [class.live]="connectionState === 'live'" [class.offline]="connectionState === 'offline'" role="status" aria-live="polite">
-          <span class="status-light"></span>{{ connectionLabel }}
-        </div>
-      </div>
-
-      <div class="metrics" aria-label="Traffic summary">
-        <div class="metric">
-          <span class="metric-label">Aircraft tracked</span>
-          <strong>{{ aircraft.length }}</strong>
-        </div>
-        <div class="metric metric-updated">
-          <span class="metric-label">Last update</span>
-          <strong>{{ lastUpdated ? (lastUpdated | date:'HH:mm:ss') : '--:--:--' }}</strong>
-        </div>
-      </div>
-    </section>
-
-    <section class="map-panel" aria-labelledby="map-title">
-      <div class="traffic-heading">
-        <div class="traffic-title-group">
-          <h2 id="map-title">Coverage map</h2>
-          <span class="result-count">{{ positionedCount }} positioned</span>
-        </div>
-      </div>
-
-      <div class="map-shell">
-        <div class="map-stage" aria-label="Aircraft coverage map">
-          <div #mapContainer class="leaflet-map" aria-label="Map of the Williamsport area"></div>
-          @if (positionedAircraft.length === 0) {
-            <div class="map-empty-state">No positioned aircraft in the current feed.</div>
-          }
-        </div>
-
-        @if (selectedAircraft) {
-          <aside class="aircraft-detail" aria-live="polite">
-            <div class="detail-header">
-              <span class="detail-badge">{{ selectedAircraft.tailnumber || 'Unknown aircraft' }}</span>
-              <span class="detail-hex">{{ selectedAircraft.hex | uppercase }}</span>
-            </div>
-
-            <dl class="detail-grid">
-              <div>
-                <dt>Hex</dt>
-                <dd>{{ selectedAircraft.hex | uppercase }}</dd>
-              </div>
-              <div>
-                <dt>Tail</dt>
-                <dd>{{ selectedAircraft.tailnumber || 'Unknown' }}</dd>
-              </div>
-              <div>
-                <dt>Altitude</dt>
-                <dd>{{ selectedAircraft.altitude === null ? '--' : (selectedAircraft.altitude | number) + ' ft' }}</dd>
-              </div>
-              <div>
-                <dt>Speed</dt>
-                <dd>{{ selectedAircraft.velocity === null ? '--' : (selectedAircraft.velocity | number:'1.0-0') + ' kt' }}</dd>
-              </div>
-              <div>
-                <dt>Position</dt>
-                <dd>
-                  {{ selectedAircraft.latitude === null ? '--' : (selectedAircraft.latitude | number:'1.4-4') }},
-                  {{ selectedAircraft.longitude === null ? '--' : (selectedAircraft.longitude | number:'1.4-4') }}
-                </dd>
-              </div>
-              <div>
-                <dt>Rotation</dt>
-                <dd>{{ selectedAircraft.rotation === null ? '--' : (selectedAircraft.rotation | number:'1.0-0') + '°' }}</dd>
-              </div>
-            </dl>
-          </aside>
-        }
-      </div>
-    </section>
-
+  <main class="page-main">
+    <router-outlet></router-outlet>
   </main>
 
   <footer class="page-footer">
     <span>Williamsport Flight Tracker</span>
+    <span>Operational intelligence</span>
   </footer>
 </div>

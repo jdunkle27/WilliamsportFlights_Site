@@ -1,0 +1,28 @@
+<section class="auth-shell">
+  <div class="auth-card">
+    <p class="eyebrow">Secure access</p>
+    <h1>Sign in to view historical flight data</h1>
+    <p class="intro">
+      Use OAuth to sign in and unlock archived Williamsport flight activity, trend analysis, and operating history.
+    </p>
+
+    <div class="oauth-actions" aria-label="OAuth login options">
+      <button type="button" class="oauth-button google" (click)="loginWith('Google')">
+        <span class="icon" aria-hidden="true">G</span>
+        Continue with Google
+      </button>
+      <button type="button" class="oauth-button microsoft" (click)="loginWith('Microsoft')">
+        <span class="icon" aria-hidden="true">M</span>
+        Continue with Microsoft
+      </button>
+      <button type="button" class="oauth-button github" (click)="loginWith('GitHub')">
+        <span class="icon" aria-hidden="true">GH</span>
+        Continue with GitHub
+      </button>
+    </div>
+
+    <p class="back-link">
+      <a routerLink="/">Return to the live map</a>
+    </p>
+  </div>
+</section>
