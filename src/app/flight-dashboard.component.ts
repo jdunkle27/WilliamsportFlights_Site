@@ -74,9 +74,7 @@ export class FlightDashboardComponent implements AfterViewInit {
   }
 
   get selectedAircraft(): Aircraft | null {
-    return this.positionedAircraft.find((item) => item.hex === this.selectedAircraftHex)
-      ?? this.positionedAircraft[0]
-      ?? null;
+    return this.aircraft.find((item) => item.hex === this.selectedAircraftHex) ?? null;
   }
 
   get mapBounds(): { minLat: number; maxLat: number; minLon: number; maxLon: number } {
@@ -217,16 +215,16 @@ export class FlightDashboardComponent implements AfterViewInit {
     this.selectedAircraftHex = hex;
   }
 
+  backToAircraftList(): void {
+    this.selectedAircraftHex = null;
+  }
+
   refreshNow(): void {
     void this.loadAircraft();
   }
 
   private syncSelectedAircraft(): void {
-    const hasSelection = this.selectedAircraftHex && this.positionedAircraft.some((item) => item.hex === this.selectedAircraftHex);
-    if (!hasSelection && this.positionedAircraft.length > 0) {
-      this.selectedAircraftHex = this.positionedAircraft[0].hex;
-    }
-    if (this.positionedAircraft.length === 0) {
+    if (this.selectedAircraftHex && !this.aircraft.some((item) => item.hex === this.selectedAircraftHex)) {
       this.selectedAircraftHex = null;
     }
   }

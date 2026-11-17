@@ -12,7 +12,7 @@
     <div class="metrics" aria-label="Traffic summary">
       <div class="metric">
         <span class="metric-label">Aircraft tracked</span>
-        <strong>{{ aircraft.length }}</strong>
+        <strong>{{ positionedCount }}</strong>
       </div>
       <div class="metric metric-updated">
         <span class="metric-label">Last update</span>
@@ -21,11 +21,103 @@
     </div>
   </section>
 
+  <section class="aircraft-panel" aria-labelledby="aircraft-title">
+    @if (selectedAircraft; as aircraft) {
+      <div class="aircraft-detail-view" aria-live="polite">
+        <button class="back-button" type="button" (click)="backToAircraftList()" aria-label="Back to aircraft list" title="Back to aircraft list">
+          <span aria-hidden="true">&larr;</span>
+          <span>All aircraft</span>
+        </button>
+
+        <div class="detail-header">
+          <div>
+            <h2 id="aircraft-title">{{ aircraft.tailnumber || 'Unknown aircraft' }}</h2>
+            <span class="detail-hex">{{ aircraft.hex | uppercase }}</span>
+          </div>
+        </div>
+
+        <dl class="detail-grid">
+          <div>
+            <dt>Hex</dt>
+            <dd>{{ aircraft.hex | uppercase }}</dd>
+          </div>
+          <div>
+            <dt>Tail</dt>
+            <dd>{{ aircraft.tailnumber || 'Unknown' }}</dd>
+          </div>
+          <div>
+            <dt>Altitude</dt>
+            <dd>{{ aircraft.altitude === null ? '--' : (aircraft.altitude | number) + ' ft' }}</dd>
+          </div>
+          <div>
+            <dt>Speed</dt>
+            <dd>{{ aircraft.velocity === null ? '--' : (aircraft.velocity | number:'1.0-0') + ' kt' }}</dd>
+          </div>
+          <div>
+            <dt>Position</dt>
+            <dd>
+              {{ aircraft.latitude === null ? '--' : (aircraft.latitude | number:'1.4-4') }},
+              {{ aircraft.longitude === null ? '--' : (aircraft.longitude | number:'1.4-4') }}
+            </dd>
+          </div>
+          <div>
+            <dt>Rotation</dt>
+            <dd>{{ aircraft.rotation === null ? '--' : (aircraft.rotation | number:'1.0-0') + '°' }}</dd>
+          </div>
+        </dl>
+      </div>
+    } @else {
+      <div class="aircraft-list-heading">
+        <div class="traffic-title-group">
+          <h2 id="aircraft-title">Aircraft</h2>
+          <span class="result-count">{{ filteredAircraft.length }} / {{ aircraft.length }}</span>
+        </div>
+        <label class="aircraft-filter">
+          <span>Filter</span>
+          <input type="search" [value]="filterText" (input)="filterText = $any($event.target).value" placeholder="Tail or ICAO">
+        </label>
+      </div>
+
+      <p *ngIf="isLoading && aircraft.length === 0" class="aircraft-empty" role="status">Loading aircraft...</p>
+      <p *ngIf="!isLoading && aircraft.length === 0" class="aircraft-empty">No aircraft in the current feed.</p>
+      <p *ngIf="aircraft.length > 0 && filteredAircraft.length === 0" class="aircraft-empty">No aircraft match this filter.</p>
+
+      <div *ngIf="filteredAircraft.length > 0" class="aircraft-table-scroll">
+        <table class="aircraft-table">
+          <thead>
+            <tr>
+              <th scope="col">Tail</th>
+              <th scope="col">ICAO</th>
+              <th scope="col">Position</th>
+              <th scope="col">Altitude</th>
+              <th scope="col">Speed</th>
+              <th scope="col">Track</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of filteredAircraft">
+              <td>
+                <button class="aircraft-row-link" type="button" (click)="selectAircraft(item.hex)" [attr.aria-label]="'View details for ' + (item.tailnumber || 'unknown aircraft')">
+                  {{ item.tailnumber || 'Unknown aircraft' }}
+                </button>
+              </td>
+              <td class="mono">{{ item.hex | uppercase }}</td>
+              <td class="mono">{{ item.latitude === null || item.longitude === null ? '--' : (item.latitude | number:'1.4-4') + ', ' + (item.longitude | number:'1.4-4') }}</td>
+              <td class="mono">{{ item.altitude === null ? '--' : (item.altitude | number) + ' ft' }}</td>
+              <td class="mono">{{ item.velocity === null ? '--' : (item.velocity | number:'1.0-0') + ' kt' }}</td>
+              <td class="mono">{{ item.rotation === null ? '--' : (item.rotation | number:'1.0-0') + '°' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+
   <section class="map-panel" aria-labelledby="map-title">
     <div class="traffic-heading">
       <div class="traffic-title-group">
         <h2 id="map-title">Coverage map</h2>
-        <span class="result-count">{{ positionedCount }} positioned</span>
+
       </div>
     </div>
 
@@ -36,45 +128,6 @@
           <div class="map-empty-state">No positioned aircraft in the current feed.</div>
         }
       </div>
-
-      @if (selectedAircraft) {
-        <aside class="aircraft-detail" aria-live="polite">
-          <div class="detail-header">
-            <span class="detail-badge">{{ selectedAircraft.tailnumber || 'Unknown aircraft' }}</span>
-            <span class="detail-hex">{{ selectedAircraft.hex | uppercase }}</span>
-          </div>
-
-          <dl class="detail-grid">
-            <div>
-              <dt>Hex</dt>
-              <dd>{{ selectedAircraft.hex | uppercase }}</dd>
-            </div>
-            <div>
-              <dt>Tail</dt>
-              <dd>{{ selectedAircraft.tailnumber || 'Unknown' }}</dd>
-            </div>
-            <div>
-              <dt>Altitude</dt>
-              <dd>{{ selectedAircraft.altitude === null ? '--' : (selectedAircraft.altitude | number) + ' ft' }}</dd>
-            </div>
-            <div>
-              <dt>Speed</dt>
-              <dd>{{ selectedAircraft.velocity === null ? '--' : (selectedAircraft.velocity | number:'1.0-0') + ' kt' }}</dd>
-            </div>
-            <div>
-              <dt>Position</dt>
-              <dd>
-                {{ selectedAircraft.latitude === null ? '--' : (selectedAircraft.latitude | number:'1.4-4') }},
-                {{ selectedAircraft.longitude === null ? '--' : (selectedAircraft.longitude | number:'1.4-4') }}
-              </dd>
-            </div>
-            <div>
-              <dt>Rotation</dt>
-              <dd>{{ selectedAircraft.rotation === null ? '--' : (selectedAircraft.rotation | number:'1.0-0') + '°' }}</dd>
-            </div>
-          </dl>
-        </aside>
-      }
     </div>
   </section>
 </div>

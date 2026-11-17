@@ -1,14 +1,13 @@
 <section class="history-shell">
   <div class="history-header">
     <div>
-      <p class="eyebrow">Protected</p>
       <h1>Historical data</h1>
     </div>
     <div class="identity-badge">Signed in with {{ signedInProvider }}</div>
   </div>
 
   <form class="history-search" (ngSubmit)="search()">
-    <label for="history-query">Search by tail number, ICAO hex, or flight ID</label>
+    <label for="history-query">Search by tail number or hex</label>
     <div class="search-controls">
       <input
         id="history-query"
